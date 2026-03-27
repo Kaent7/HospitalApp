@@ -1,0 +1,28 @@
+﻿<Window x:Class="HospitalApp.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Авторизация" Height="400" Width="350" 
+        WindowStartupLocation="CenterScreen" Background="#F7F9F7">
+    <Grid Margin="30">
+        <StackPanel VerticalAlignment="Center">
+
+            <TextBlock Text="Вход в систему" FontSize="22" Foreground="#4A5D4A" Margin="0,0,0,25" HorizontalAlignment="Center"/>
+
+            <TextBlock Text="ЛОГИН" FontSize="10" FontWeight="Bold" Foreground="#99A399" Margin="0,0,0,5"/>
+            <TextBox x:Name="txtLogin" Height="35" Margin="0,0,0,15" VerticalContentAlignment="Center" Padding="5,0"/>
+
+            <TextBlock Text="ПАРОЛЬ" FontSize="10" FontWeight="Bold" Foreground="#99A399" Margin="0,0,0,5"/>
+            <PasswordBox x:Name="txtPassword" Height="35" Margin="0,0,0,25" VerticalContentAlignment="Center" Padding="5,0"/>
+
+            <Button x:Name="btnLogin" Content="ВОЙТИ" Height="40" Background="#749374" Foreground="White" BorderThickness="0" Click="Login_Click">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+            <Button Content="Создать новый аккаунт" Background="Transparent" BorderThickness="0" Foreground="#749374" Margin="0,10,0,0" Click="ToRegister_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
