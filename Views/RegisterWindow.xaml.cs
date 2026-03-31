@@ -17,47 +17,98 @@ namespace HospitalApp.Views
 {
     public partial class RegisterWindow : Window
     {
-        public RegisterWindow() => InitializeComponent();
+        public RegisterWindow()
+        {
+            InitializeComponent();
+            LoadRoles();
+        }
+
+        private void LoadRoles()
+        {
+            try
+            {
+                using (var db = new HospitalDBEntities())
+                {
+                    // Загружаем роли для выпадающего списка
+                    var roles = db.Roles.ToList();
+                    cmbRoles.ItemsSource = roles;
+
+                    if (roles.Count > 0)
+                        cmbRoles.SelectedIndex = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки ролей: " + ex.Message);
+            }
+        }
 
         private void Register_Click(object sender, RoutedEventArgs e)
         {
-            // ... проверки на пустые поля ...
+            // 1. Извлекаем данные
+            string login = txtLogin.Text.Trim();
+            string password = txtPassword.Password;
 
-            using (var db = new HospitalDBEntities())
+            // 2. Валидация
+            if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password))
             {
-                // 1. Проверяем логин
-                if (db.Users.Any(u => u.Login == txtLogin.Text))
-                {
-                    MessageBox.Show("Логин занят!");
-                    return;
-                }
+                MessageBox.Show("Логин и пароль не могут быть пустыми!", "Внимание");
+                return;
+            }
 
-                // 2. Создаем пользователя и ЯВНО указываем ID роли
-                var newUser = new Users
-                {
-                    Login = txtLogin.Text,
-                    Password = txtPassword.Password,
-                    RoleId = 1 // Укажи здесь ID роли, который точно есть в твоей таблице Roles (обычно 1 или 2)
-                };
+            // ИСПРАВЛЕНО: Проверка длины пароля
+            if (password.Length < 6)
+            {
+                MessageBox.Show("Пароль должен содержать минимум 6 символов!", "Безопасность");
+                return;
+            }
 
-                try
+            if (cmbRoles.SelectedValue == null)
+            {
+                MessageBox.Show("Выберите роль пользователя!");
+                return;
+            }
+
+            try
+            {
+                using (var db = new HospitalDBEntities())
                 {
+                    // 3. Проверка уникальности логина
+                    if (db.Users.Any(u => u.Login == login))
+                    {
+                        MessageBox.Show("Пользователь с таким логином уже существует!");
+                        return;
+                    }
+
+                    // 4. Создание нового объекта
+                    var newUser = new Users
+                    {
+                        Login = login,
+                        Password = password, // В реальных проектах тут должен быть Хэш!
+                        RoleId = (int)cmbRoles.SelectedValue
+                    };
+
                     db.Users.Add(newUser);
-                    db.SaveChanges(); // Теперь ошибки быть не должно
-                    MessageBox.Show("Успех!");
-                    new LoginWindow().Show();
+                    db.SaveChanges();
+
+                    MessageBox.Show("Регистрация завершена успешно!", "Успех");
+
+                    // Возврат на окно входа
+                    LoginWindow loginWin = new LoginWindow();
+                    loginWin.Show();
                     this.Close();
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ошибка БД: " + ex.Message);
-                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при сохранении: " + ex.InnerException?.Message ?? ex.Message);
             }
         }
 
         private void ToLogin_Click(object sender, RoutedEventArgs e)
         {
-            new LoginWindow().Show();
+            LoginWindow loginWin = new LoginWindow();
+            loginWin.Show();
             this.Close();
         }
     }

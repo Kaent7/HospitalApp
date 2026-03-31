@@ -15,7 +15,7 @@
                    Foreground="#4A5D4A" Margin="0,0,0,20" FontWeight="Light"/>
 
         <StackPanel Grid.Row="1" Margin="0,0,0,15">
-            <TextBlock Text="ПОИСК ПАЦИЕНТА" FontSize="10" FontWeight="Bold" 
+            <TextBlock Text="ПОИСК ПАЦИЕНТА (ПО ФИО)" FontSize="10" FontWeight="Bold" 
                        Foreground="#99A399" Margin="5,0,0,5"/>
             <TextBox x:Name="txtSearch" Width="350" Height="36" HorizontalAlignment="Left"
                      VerticalContentAlignment="Center" Padding="10,0"
@@ -27,46 +27,24 @@
                       IsReadOnly="True" Background="White" BorderThickness="0"
                       GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F7F9F7"
                       RowHeight="45" SelectionMode="Single">
-                <DataGrid.ColumnHeaderStyle>
-                    <Style TargetType="DataGridColumnHeader">
-                        <Setter Property="Background" Value="#F7F9F7"/>
-                        <Setter Property="Foreground" Value="#749374"/>
-                        <Setter Property="Padding" Value="12,8"/>
-                        <Setter Property="FontWeight" Value="SemiBold"/>
-                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                        <Setter Property="BorderBrush" Value="#E0E8E0"/>
-                    </Style>
-                </DataGrid.ColumnHeaderStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Дата" Binding="{Binding AppointmentDateTime, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Width="140"/>
-                    <DataGridTextColumn Header="Пациент" Binding="{Binding Patient.LastName}" Width="2*"/>
-                    <DataGridTextColumn Header="Врач" Binding="{Binding Doctor.LastName}" Width="2*"/>
+                    <DataGridTextColumn Header="Дата" Binding="{Binding AppointmentDate, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Width="140"/>
+                    <DataGridTextColumn Header="Пациент" Binding="{Binding Patients.FullName}" Width="2*"/>
+                    <DataGridTextColumn Header="Врач" Binding="{Binding Doctors.FullName}" Width="2*"/>
                     <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="1*"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
 
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-            <Button x:Name="btnDelete" Content="Удалить выбранное" Width="160" Height="40" 
-            Background="#8C6A6A" Foreground="White" BorderThickness="0"
-            FontSize="14" FontWeight="SemiBold" Margin="0,0,15,0"
-            Click="btnDelete_Click">
-                <Button.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="6"/>
-                    </Style>
-                </Button.Resources>
-            </Button>
+            <Button x:Name="btnExport" Content="📄 Отчет (TXT)" Click="btnExport_Click" 
+                    Width="150" Height="40" Background="#4A5D4A" Foreground="White" Margin="10,0"/>
 
-            <Button Content="Новая запись" Width="160" Height="40" 
-            Background="#749374" Foreground="White" BorderThickness="0"
-            FontSize="14" FontWeight="SemiBold" Click="btnAdd_Click">
-                <Button.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="6"/>
-                    </Style>
-                </Button.Resources>
-            </Button>
+            <Button x:Name="btnDelete" Content="Удалить" Width="130" Height="40" 
+                    Background="#8C6A6A" Foreground="White" Click="btnDelete_Click" Margin="0,0,10,0"/>
+
+            <Button Content="Новая запись" Width="150" Height="40" 
+                    Background="#749374" Foreground="White" Click="btnAdd_Click"/>
         </StackPanel>
     </Grid>
 </Page>

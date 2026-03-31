@@ -18,19 +18,23 @@ namespace HospitalApp.Views
 {
     public partial class LoginWindow : Window
     {
-        // Глобальная переменная для хранения текущего пользователя
+        // Статическое свойство, чтобы из любой страницы (например, HomePage) 
+        // можно было написать: LoginWindow.CurrentUser.Login
         public static Users CurrentUser { get; private set; }
 
-        public LoginWindow() => InitializeComponent();
+        public LoginWindow()
+        {
+            InitializeComponent();
+        }
 
         private void Login_Click(object sender, RoutedEventArgs e)
         {
             string login = txtLogin.Text.Trim();
-            string password = txtPassword.Password;
+            string password = txtPassword.Password; // В PasswordBox используем .Password, а не .Text
 
-            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
+            if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password))
             {
-                MessageBox.Show("Пожалуйста, введите логин и пароль.", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Введите логин и пароль!", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -38,32 +42,36 @@ namespace HospitalApp.Views
             {
                 using (var db = new HospitalDBEntities())
                 {
-                    // Ищем пользователя
+                    // Ищем пользователя в таблице Users
+                    // Важно: проверь, чтобы в БД поле называлось Password, а не PasswordHash или как-то иначе
                     var user = db.Users.FirstOrDefault(u => u.Login == login && u.Password == password);
 
                     if (user != null)
                     {
-                        CurrentUser = user; // Запоминаем пользователя
+                        CurrentUser = user; // Сохраняем сессию
 
+                        // Переходим в главное окно
                         MainWindow main = new MainWindow();
                         main.Show();
-                        this.Close();
+                        this.Close(); // Закрываем окно логина
                     }
                     else
                     {
-                        MessageBox.Show("Неверный логин или пароль!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Пользователь не найден или пароль неверен.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка подключения к базе: " + ex.Message);
+                MessageBox.Show("Критическая ошибка при подключении к БД: " + ex.Message, "Ошибка");
             }
         }
 
         private void ToRegister_Click(object sender, RoutedEventArgs e)
         {
-            new RegisterWindow().Show();
+            // Открываем окно регистрации
+            RegisterWindow regWin = new RegisterWindow();
+            regWin.Show();
             this.Close();
         }
     }

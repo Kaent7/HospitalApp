@@ -15,7 +15,7 @@
                    Foreground="#4A5D4A" Margin="0,0,0, 20" FontWeight="Light"/>
 
         <StackPanel Grid.Row="1" Margin="0,0,0,15">
-            <TextBlock Text="ПОИСК ПО ФАМИЛИИ" FontSize="10" FontWeight="Bold" 
+            <TextBlock Text="ПОИСК ПО ФИО" FontSize="10" FontWeight="Bold" 
                        Foreground="#99A399" Margin="5,0,0,5"/>
             <TextBox x:Name="txtSearch" Width="350" Height="36" HorizontalAlignment="Left"
                      VerticalContentAlignment="Center" Padding="10,0"
@@ -28,10 +28,12 @@
                       GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F7F9F7"
                       RowHeight="45">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Фамилия" Binding="{Binding LastName}" Width="*"/>
-                    <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}" Width="*"/>
-                    <DataGridTextColumn Header="Отчество" Binding="{Binding MiddleName}" Width="*"/>
-                    <DataGridTextColumn Header="Дата рождения" Binding="{Binding DateOfBirth, StringFormat={}{0:dd.MM.yyyy}}" Width="150"/>
+                    <DataGridTextColumn Header="ФИО Пациента" Binding="{Binding FullName}" Width="*"/>
+
+                    <DataGridTextColumn Header="Дата рождения" 
+                                        Binding="{Binding BirthDate, StringFormat={}{0:dd.MM.yyyy}}" 
+                                        Width="150"/>
+
                     <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" Width="150"/>
                 </DataGrid.Columns>
             </DataGrid>
@@ -42,7 +44,9 @@
                     Background="#749374" Foreground="White" BorderThickness="0"
                     FontSize="14" FontWeight="SemiBold" Click="btnAdd_Click">
                 <Button.Resources>
-                    <Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="6"/>
+                    </Style>
                 </Button.Resources>
             </Button>
         </StackPanel>

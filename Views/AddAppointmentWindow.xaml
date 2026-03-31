@@ -12,10 +12,10 @@
             <DatePicker x:Name="dpDate" Height="35" Margin="0,0,0,15"/>
 
             <TextBlock Text="Пациент" FontSize="12" FontWeight="Bold" Foreground="#99A399" Margin="0,0,0,5"/>
-            <ComboBox x:Name="cbPatients" Height="35" Margin="0,0,0,15" DisplayMemberPath="LastName"/>
+            <ComboBox x:Name="cbPatients" Height="35" Margin="0,0,0,15" DisplayMemberPath="FullName"/>
 
             <TextBlock Text="Врач" FontSize="12" FontWeight="Bold" Foreground="#99A399" Margin="0,0,0,5"/>
-            <ComboBox x:Name="cbDoctors" Height="35" Margin="0,0,0,15" DisplayMemberPath="LastName"/>
+            <ComboBox x:Name="cbDoctors" Height="35" Margin="0,0,0,15" DisplayMemberPath="FullName"/>
 
             <TextBlock Text="Статус" FontSize="12" FontWeight="Bold" Foreground="#99A399" Margin="0,0,0,5"/>
             <TextBox x:Name="txtStatus" Text="Запланировано" Height="35" Margin="0,0,0,30" VerticalContentAlignment="Center" Padding="5,0"/>

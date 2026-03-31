@@ -26,35 +26,66 @@ namespace HospitalApp.Views
 
         private void LoadData()
         {
-            using (var db = new HospitalDBEntities())
+            try
             {
-                cbPatients.ItemsSource = db.Patients.ToList();
-                cbDoctors.ItemsSource = db.Doctors.ToList();
+                using (var db = new HospitalDBEntities())
+                {
+                    // Загружаем данные. Убедись, что в моделях Patients и Doctors есть свойство FullName
+                    cbPatients.ItemsSource = db.Patients.ToList();
+                    cbDoctors.ItemsSource = db.Doctors.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке списков: " + ex.Message);
             }
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            if (dpDate.SelectedDate == null || cbPatients.SelectedItem == null || cbDoctors.SelectedItem == null)
-            {
-                MessageBox.Show("Заполните все поля!");
-                return;
-            }
+            // Валидация
+            if (dpDate.SelectedDate == null) { MessageBox.Show("Выберите дату!"); return; }
+            if (cbPatients.SelectedItem == null) { MessageBox.Show("Выберите пациента!"); return; }
+            if (cbDoctors.SelectedItem == null) { MessageBox.Show("Выберите врача!"); return; }
 
             using (var db = new HospitalDBEntities())
             {
-                var newApp = new Appointments
+                try
                 {
-                    AppointmentDateTime = dpDate.SelectedDate.Value,
-                    PatientId = (cbPatients.SelectedItem as Patients).Id,
-                    DoctorId = (cbDoctors.SelectedItem as Doctors).Id,
-                    Status = txtStatus.Text
-                };
+                    // Получаем выбранные объекты
+                    var selectedPatient = cbPatients.SelectedItem as Patients;
+                    var selectedDoctor = cbDoctors.SelectedItem as Doctors;
 
-                db.Appointments.Add(newApp);
-                db.SaveChanges();
+                    var newApp = new Appointments
+                    {
+                        // Убедись, что имя свойства в БД именно AppointmentDate (по твоей схеме там AppointmentDate)
+                        AppointmentDateTime = dpDate.SelectedDate.Value,
+                        PatientId = selectedPatient.Id,
+                        DoctorId = selectedDoctor.Id,
+                        Status = txtStatus.Text.Trim()
+                    };
+
+                    db.Appointments.Add(newApp);
+                    db.SaveChanges();
+
+                    MessageBox.Show("Запись успешно создана!");
+                    this.DialogResult = true;
+                    this.Close();
+                }
+                catch (System.Data.Entity.Validation.DbEntityValidationException dbEx)
+                {
+                    // Выводим детальные ошибки, если база "капризничает"
+                    string msg = "Ошибка БД:\n";
+                    foreach (var eve in dbEx.EntityValidationErrors)
+                        foreach (var ve in eve.ValidationErrors)
+                            msg += $"- {ve.PropertyName}: {ve.ErrorMessage}\n";
+                    MessageBox.Show(msg);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка сохранения: " + ex.Message);
+                }
             }
-            this.DialogResult = true;
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e) => this.Close();

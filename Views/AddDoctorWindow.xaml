@@ -1,0 +1,37 @@
+﻿<Window x:Class="HospitalApp.Views.AddDoctorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Добавление врача" Height="500" Width="400"
+        WindowStartupLocation="CenterOwner" Background="#F7F9F7">
+    <Grid Margin="30">
+        <StackPanel VerticalAlignment="Top">
+            <TextBlock Text="Новый сотрудник" FontSize="22" Foreground="#4A5D4A" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+
+            <TextBlock Text="ФИО ВРАЧА" FontSize="10" FontWeight="Bold" Foreground="#99A399" Margin="0,0,0,5"/>
+            <TextBox x:Name="txtFullName" Height="35" Margin="0,0,0,15" VerticalContentAlignment="Center" Padding="5,0"/>
+
+            <TextBlock Text="СПЕЦИАЛИЗАЦИЯ" FontSize="10" FontWeight="Bold" Foreground="#99A399" Margin="0,0,0,5"/>
+            <ComboBox x:Name="cmbSpecialization" Height="35" Margin="0,0,0,15" 
+                      DisplayMemberPath="Title" SelectedValuePath="Id" VerticalContentAlignment="Center"/>
+
+            <TextBlock Text="КАБИНЕТ" FontSize="10" FontWeight="Bold" Foreground="#99A399" Margin="0,0,0,5"/>
+            <ComboBox x:Name="cmbCabinet" Height="35" Margin="0,0,0,15" 
+                      DisplayMemberPath="RoomNumber" SelectedValuePath="Id" VerticalContentAlignment="Center"/>
+
+            <TextBlock Text="ПРИВЯЗКА К АККАУНТУ" FontSize="10" FontWeight="Bold" Foreground="#99A399" Margin="0,0,0,5"/>
+            <ComboBox x:Name="cmbUser" Height="35" Margin="0,0,0,25" 
+                      DisplayMemberPath="Login" SelectedValuePath="Id" VerticalContentAlignment="Center"/>
+
+            <UniformGrid Columns="2" Height="40">
+                <Button Content="ОТМЕНА" Margin="0,0,5,0" Background="#E0E8E0" BorderThickness="0" Click="Cancel_Click"/>
+                <Button Content="СОХРАНИТЬ" Margin="5,0,0,0" Background="#749374" Foreground="White" BorderThickness="0" Click="Save_Click">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="5"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </UniformGrid>
+        </StackPanel>
+    </Grid>
+</Window>

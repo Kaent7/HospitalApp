@@ -18,8 +18,8 @@ namespace HospitalApp
         {
             base.OnStartup(e);
 
-            // Запускаем окно регистрации при старте
-            RegisterWindow regWin = new RegisterWindow();
+            // Оставляем только регистрацию
+            Views.RegisterWindow regWin = new Views.RegisterWindow();
             regWin.Show();
         }
     }

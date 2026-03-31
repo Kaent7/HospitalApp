@@ -1,19 +1,11 @@
 ﻿using HospitalApp.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.IO; // Для экспорта в TXT
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Data.Entity; 
 
 namespace HospitalApp.Pages
 {
@@ -25,61 +17,115 @@ namespace HospitalApp.Pages
             LoadData();
         }
 
-        private void LoadData()
+        // --- ЛОГИКА ЗАГРУЗКИ И ФИЛЬТРАЦИИ ---
+        public void LoadData()
         {
-            using (var db = new HospitalDBEntities())
+            try
             {
-                // .Include нужен, чтобы подгрузить связанные таблицы (Пациента и Врача)
-                // На слабом ПК это быстрее, чем делать много мелких запросов
-                var list = db.Appointments
-                             .Include(a => a.Patients)
-                             .Include(a => a.Doctors)
-                             .ToList();
-                dgAppointments.ItemsSource = list;
+                using (var db = new HospitalDBEntities())
+                {
+                    var currentUser = Views.LoginWindow.CurrentUser;
+                    if (currentUser == null) return;
+
+                    // Базовый запрос (аналог твоего SQL JOIN)
+                    var query = db.Appointments
+                        .Include(a => a.Patients)
+                        .Include(a => a.Doctors)
+                        .AsQueryable();
+
+                    // ТВОЯ ЛОГИКА: Если вошел врач (RoleId = 2), фильтруем по его UserId
+                    if (currentUser.RoleId == 2)
+                    {
+                        query = query.Where(a => a.Doctors.UserId == currentUser.Id);
+
+                        // Скрываем кнопку удаления для врачей (обычно им нельзя удалять записи)
+                        btnDelete.Visibility = Visibility.Collapsed;
+                    }
+
+                    // Поиск по ФИО пациента (если в поиске что-то введено)
+                    string search = txtSearch.Text.ToLower();
+                    if (!string.IsNullOrWhiteSpace(search))
+                    {
+                        query = query.Where(a => a.Patients.FullName.ToLower().Contains(search));
+                    }
+
+                    dgAppointments.ItemsSource = query.OrderByDescending(a => a.AppointmentDateTime).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки: " + ex.Message);
             }
         }
 
+        // --- ОБРАБОТЧИКИ КНОПОК ---
+
+        // Поиск (срабатывает при каждом символе)
         private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
         {
-            using (var db = new HospitalDBEntities())
+            LoadData();
+        }
+
+        // Новая запись
+        private void btnAdd_Click(object sender, RoutedEventArgs e)
+        {
+            var addWin = new Views.AddAppointmentWindow(); // Убедись, что путь к окну верный
+            if (addWin.ShowDialog() == true)
             {
-                string search = txtSearch.Text.ToLower();
-                var filtered = db.Appointments
-                                 .Include(a => a.Patients)
-                                 .Include(a => a.Doctors)
-                                 .Where(a => a.Patients.FullName.ToLower().Contains(search))
-                                 .ToList();
-                dgAppointments.ItemsSource = filtered;
+                LoadData();
             }
         }
 
-        private void btnAdd_Click(object sender, RoutedEventArgs e)
-        {
-            var addWin = new Views.AddAppointmentWindow();
-            addWin.Owner = Window.GetWindow(this); // Чтобы окно было по центру главного
-            if (addWin.ShowDialog() == true)
-            {
-                LoadData(); // Обновляем таблицу после сохранения
-            }
-        }
+        // Удалить запись
         private void btnDelete_Click(object sender, RoutedEventArgs e)
         {
             var selected = dgAppointments.SelectedItem as Appointments;
             if (selected == null)
             {
-                MessageBox.Show("Выберите запись для удаления.");
+                MessageBox.Show("Выберите запись для удаления");
                 return;
             }
 
-            if (MessageBox.Show("Удалить запись?", "Вопрос", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            if (MessageBox.Show("Вы уверены, что хотите удалить запись?", "Внимание", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 using (var db = new HospitalDBEntities())
                 {
-                    var toDelete = db.Appointments.Find(selected.Id);
-                    db.Appointments.Remove(toDelete);
-                    db.SaveChanges();
-                    LoadData();
+                    var item = db.Appointments.Find(selected.Id);
+                    if (item != null)
+                    {
+                        db.Appointments.Remove(item);
+                        db.SaveChanges();
+                        LoadData();
+                    }
                 }
+            }
+        }
+
+        // Экспорт в отчет (TXT)
+        private void btnExport_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var data = dgAppointments.ItemsSource as List<Appointments>;
+                if (data == null || data.Count == 0) return;
+
+                string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string filePath = Path.Combine(desktopPath, "Report_Appointments.txt");
+
+                using (StreamWriter sw = new StreamWriter(filePath))
+                {
+                    sw.WriteLine($"ОТЧЕТ ПО ПРИЕМАМ ОТ {DateTime.Now:dd.MM.yyyy}");
+                    sw.WriteLine("------------------------------------------");
+                    foreach (var item in data)
+                    {
+                        sw.WriteLine($"{item.AppointmentDateTime:dd.MM HH:mm} | Пациент: {item.Patients.FullName} | Статус: {item.Status}");
+                    }
+                }
+                MessageBox.Show($"Отчет сохранен на рабочий стол!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка экспорта: " + ex.Message);
             }
         }
     }

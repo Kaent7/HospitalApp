@@ -1,4 +1,5 @@
 ﻿using HospitalApp.Models;
+using HospitalApp.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,9 +27,31 @@ namespace HospitalApp.Pages
 
         private void LoadData()
         {
-            using (var db = new HospitalDBEntities())
+            try
             {
-                dgPatients.ItemsSource = db.Patients.ToList();
+                using (var db = new HospitalDBEntities())
+                {
+                    // Загружаем список всех пациентов, сортируем по алфавиту
+                    dgPatients.ItemsSource = db.Patients.OrderBy(p => p.FullName).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки данных: " + ex.Message);
+            }
+        }
+
+        private void btnAdd_Click(object sender, RoutedEventArgs e)
+        {
+            // Открываем окно добавления
+            var addWindow = new AddPatientWindow();
+
+            // Указываем владельца, чтобы окно было по центру
+            addWindow.Owner = Window.GetWindow(this);
+
+            if (addWindow.ShowDialog() == true)
+            {
+                LoadData(); // Обновляем список, если сохранение прошло успешно
             }
         }
 
@@ -36,17 +59,14 @@ namespace HospitalApp.Pages
         {
             using (var db = new HospitalDBEntities())
             {
-                string search = txtSearch.Text.ToLower();
+                string search = txtSearch.Text.Trim().ToLower();
+
+                // Фильтрация с защитой от null в поле FullName
                 dgPatients.ItemsSource = db.Patients
-                    .Where(p => p.FullName.ToLower().Contains(search))
+                    .Where(p => p.FullName != null && p.FullName.ToLower().Contains(search))
+                    .OrderBy(p => p.FullName)
                     .ToList();
             }
-        }
-
-        private void btnAdd_Click(object sender, RoutedEventArgs e)
-        {
-            // Сюда потом привяжем окно добавления пациента
-            MessageBox.Show("Функция в разработке");
         }
     }
 }

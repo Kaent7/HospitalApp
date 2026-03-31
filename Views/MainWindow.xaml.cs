@@ -1,4 +1,5 @@
 ﻿using HospitalApp.Infrastructure;
+using HospitalApp.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,22 +17,45 @@ using System.Windows.Shapes;
 
 namespace HospitalApp
 {
-    /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
+
+            // Устанавливаем стартовую страницу
             MainFrame.Navigate(new Pages.HomePage());
-            txtUserRole.Text = $"Вы вошли как: {Views.LoginWindow.CurrentUser.Login}";
-            MainFrame.Navigate(new Pages.HomePage());
+            CheckAccessRights();
+        }
+
+        private void CheckAccessRights()
+        {
+            var user = LoginWindow.CurrentUser;
+
+            if (user == null) return;
+
+            if (user.RoleId == 1)
+            {
+                btnDoctors.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                btnDoctors.Visibility = Visibility.Collapsed;
+            }
+            if (user.RoleId == 1 || user.RoleId == 3)
+            {
+                btnPatients.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                btnPatients.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void Nav_Click(object sender, RoutedEventArgs e)
         {
-            Button btn = sender as Button;
+            if (!(sender is Button btn)) return;
+            var user = LoginWindow.CurrentUser;
 
             switch (btn.Name)
             {
@@ -42,14 +66,31 @@ namespace HospitalApp
                     MainFrame.Navigate(new Pages.AppointmentsPage());
                     break;
                 case "btnPatients":
-                    MainFrame.Navigate(new Pages.PatientsPage());
+                    // Проверка: только админ и регистратор
+                    if (user.RoleId == 1 || user.RoleId == 3)
+                        MainFrame.Navigate(new Pages.PatientsPage());
+                    else
+                        MessageBox.Show("Доступ к разделу пациентов ограничен.");
+                    break;
+                case "btnDoctors":
+                    // Проверка: только админ
+                    if (user.RoleId == 1)
+                        MainFrame.Navigate(new Pages.DoctorsPage());
+                    else
+                        MessageBox.Show("У вас нет прав для управления персоналом.");
                     break;
             }
         }
 
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
-            Application.Current.Shutdown();
+            if (MessageBox.Show("Вы уверены, что хотите выйти из системы?", "Выход",
+                MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                Views.LoginWindow login = new Views.LoginWindow();
+                login.Show();
+                this.Close(); 
+            }
         }
     }
 }

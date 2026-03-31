@@ -43,29 +43,6 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-
-            <TextBlock Text="Ближайшие записи (на сегодня)" FontSize="18" Foreground="#4A5D4A" Margin="10,0,0,15" FontWeight="SemiBold"/>
-
-            <Border Grid.Row="1" Background="White" CornerRadius="8" BorderBrush="#F0F5F0" BorderThickness="1" Margin="10,0,10,10">
-                <DataGrid x:Name="dgUpcoming" AutoGenerateColumns="False" IsReadOnly="True" 
-                          Background="Transparent" BorderThickness="0" RowHeight="45"
-                          GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F7F9F7">
-                    <DataGrid.ColumnHeaderStyle>
-                        <Style TargetType="DataGridColumnHeader">
-                            <Setter Property="Background" Value="#F7F9F7"/>
-                            <Setter Property="Foreground" Value="#749374"/>
-                            <Setter Property="Padding" Value="10"/>
-                            <Setter Property="FontWeight" Value="Bold"/>
-                        </Style>
-                    </DataGrid.ColumnHeaderStyle>
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Время" Binding="{Binding AppointmentDateTime, StringFormat={}{0:HH:mm}}" Width="100"/>
-                        <DataGridTextColumn Header="Пациент" Binding="{Binding Patient.LastName}" Width="*"/>
-                        <DataGridTextColumn Header="Врач" Binding="{Binding Doctor.LastName}" Width="*"/>
-                        <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="150"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Border>
         </Grid>
     </Grid>
 </Page>
